@@ -151,8 +151,16 @@ file(GLOB impl_sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     sources/impl/MeshLoaderColladaHelpers.cpp
     sources/impl/MeshLoaderColladaLoader.cpp
     sources/impl/MeshLoaderMSH.cpp
-    sources/impl/MeshLoaderFBX.cpp
 )
+
+# FBX SDK 2012 is no longer available; the FBX loader is optional.
+OPTION(USE_FBX "Build the FBX mesh loader (requires FBX SDK 2012)" OFF)
+IF(USE_FBX)
+    LIST(APPEND impl_sources sources/impl/MeshLoaderFBX.cpp)
+    add_definitions(-DUSE_FBX)
+ELSE()
+    LIST(REMOVE_ITEM impl_sources include/impl/MeshLoaderFBX.h)
+ENDIF()
 
 IF(APPLE)
     LIST(APPEND impl_sources
@@ -239,7 +247,12 @@ source_group("Platform" REGULAR_EXPRESSION "\\/impl\\/Platform.+")
 
 FindPrebuiltLibrary(NEWTON_LIBRARY Newton)
 FindPrebuiltLibrary(ANGELSCRIPT_LIBRARY angelscript)
-FindPrebuiltLibrary(FBX_LIBRARY fbxsdk-2012.2-static)
+# Only look for FBX library if explicitly enabled
+IF(USE_FBX)
+    FindPrebuiltLibrary(FBX_LIBRARY fbxsdk-2012.2-static)
+ELSE()
+    SET(FBX_LIBRARY "")
+ENDIF()
 FindPrebuiltLibrary(GLEW_LIBRARY GLEW)
 FindPrebuiltLibrary(THEORA_LIBRARY theora)
 FindPrebuiltLibrary(DEVIL_LIBRARY IL)
@@ -344,7 +357,15 @@ FUNCTION(AddTestTarget target_name)
     )
 ENDFUNCTION()
 
-add_subdirectory(../tests tests)
-add_subdirectory(../tools tools)
+# Tests directory lacks a CMakeLists.txt in the source release
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../tests/CMakeLists.txt)
+    add_subdirectory(../tests tests)
+endif()
+
+# Make FLTK tools and viewers optional for game-only builds
+OPTION(BUILD_TOOLS "Build HPL2 tools and editors" OFF)
+if(BUILD_TOOLS)
+    add_subdirectory(../tools tools)
+endif()
 
 
