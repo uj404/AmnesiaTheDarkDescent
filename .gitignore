@@ -359,3 +359,4 @@ build/
 # Auto-generated HPL2 build counters
 HPL2/core/sources/BuildID_*_Linux.cpp
 HPL2/core/include/BuildID_HPL2_0.h
+HPL2/dependencies
