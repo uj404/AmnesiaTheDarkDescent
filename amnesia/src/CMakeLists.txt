@@ -1,5 +1,16 @@
 cmake_minimum_required (VERSION 2.8.11)
 project(Lux)
+# CMake 4.x policy floor compatibility
+if(POLICY CMP0000)
+    cmake_policy(VERSION 3.5)
+endif()
+
+# Pin compiler dialect and disable PIE for legacy non-PIC prebuilt archives
+if(CMAKE_COMPILEER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14 -fpermissive -w")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
+endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
